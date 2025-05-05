@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "roro",
+    "name": "KRO Apps",
     "slug": "roro",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -19,10 +19,16 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "id.krakatauport.cigading"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "ce086776-ad78-4ad4-b2c7-1874160b4bbf"
+      }
     }
   }
 }
