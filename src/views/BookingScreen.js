@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Image,FlatList, ScrollView } from 'react-native';
+import { View, StyleSheet, Image,FlatList, ScrollView, StatusBar } from 'react-native';
 import { TextInput, Menu, Button, Text,ActivityIndicator  } from 'react-native-paper';
 import axios from 'axios';
 import { TouchableOpacity } from 'react-native';
@@ -93,6 +93,8 @@ const BookingScreen = ({navigation}) => {
 
   return (
     <ScrollView style={{}}>
+      <StatusBar translucent backgroundColor="#01468A" />
+
         <View style={styles.headerContainer}>
             <View style={styles.leftContent}>
             <Image

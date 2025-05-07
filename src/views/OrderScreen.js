@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity,  ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity,  ScrollView, StatusBar } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import axios from 'axios';
 import { Menu, TextInput,ActivityIndicator  } from 'react-native-paper';
@@ -161,6 +161,7 @@ const OrderHeader = ({navigation, route}) => {
   return (
     <ScrollView>
      
+      <StatusBar translucent backgroundColor="#01468A" />
 
       <View style={styles.headerContainer}>
         <View style={styles.leftContent}>

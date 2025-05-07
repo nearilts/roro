@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, ActivityIndicator, TextInput } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, ActivityIndicator, TextInput, StatusBar } from 'react-native';
 import { CommonActions } from '@react-navigation/native';
 
 const CekBookingScreen = ({ navigation }) => {
@@ -53,6 +53,8 @@ const CekBookingScreen = ({ navigation }) => {
 
   return (
     <ScrollView>
+      <StatusBar translucent backgroundColor="#01468A" />
+      
       <View style={styles.headerContainer}>
         <View style={styles.leftContent}>
           <Image
@@ -72,6 +74,8 @@ const CekBookingScreen = ({ navigation }) => {
             placeholder="Masukkan No Booking"
             value={bookingNumber}
             onChangeText={setBookingNumber}
+            textColor="#000" // warna teks (input)
+            placeholderTextColor="gray" // warna placeholder
           />
 
           <TextInput
@@ -79,6 +83,8 @@ const CekBookingScreen = ({ navigation }) => {
             placeholder="Masukkan Email"
             value={Email}
             onChangeText={setEmail}
+            textColor="#000" // warna teks (input)
+            placeholderTextColor="gray" // warna placeholder
           />
           <TouchableOpacity style={styles.button} onPress={fetchBookingDetail} disabled={buttonLoading}>
             {buttonLoading ? (

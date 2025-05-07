@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, ActivityIndicator, StatusBar } from 'react-native';
 import { CommonActions } from '@react-navigation/native';
 
 const PaymentDetailScreen = ({ navigation, route }) => {
@@ -69,6 +69,8 @@ const PaymentDetailScreen = ({ navigation, route }) => {
   };
   return (
     <ScrollView>
+        <StatusBar translucent backgroundColor="#01468A" />
+      
       <View style={styles.headerContainer}>
         <View style={styles.leftContent}>
           <Image
