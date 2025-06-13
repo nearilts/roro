@@ -120,7 +120,7 @@ const BookingScreen = ({navigation}) => {
               right={<TextInput.Icon icon="menu-down" />}
               style={{ backgroundColor: '#fff', borderColor: 'blue', borderWidth: 1,marginBottom:20 }} // Ganti border menjadi biru
               textColor="#000" // warna teks (input)
-              placeholderTextColor="gray" // warna placeholder
+              placeholderTextColor="#000" // warna placeholder
             />
           </TouchableOpacity>
         }
@@ -150,7 +150,7 @@ const BookingScreen = ({navigation}) => {
               right={<TextInput.Icon icon="menu-down" />}
               style={{ backgroundColor: '#fff', borderColor: 'blue', borderWidth: 1,marginBottom:20,color:'#000' }} // Ganti border menjadi biru
               textColor="#000" // warna teks (input)
-              placeholderTextColor="gray" // warna placeholder
+              placeholderTextColor="#000" // warna placeholder
             />
           </TouchableOpacity>
         }
@@ -176,7 +176,7 @@ const BookingScreen = ({navigation}) => {
           right={<TextInput.Icon icon="calendar" />}
           style={{ backgroundColor: '#fff', borderColor: 'blue', borderWidth: 1,color:'#000'  }} // Ganti border menjadi biru
           textColor="#000" // warna teks (input)
-          placeholderTextColor="gray" // warna placeholder
+          placeholderTextColor="#000" // warna placeholder
         />
       </TouchableOpacity>
 
@@ -189,7 +189,7 @@ const BookingScreen = ({navigation}) => {
           onChange={handleDateChange}
           style={{ backgroundColor: '#fff', borderColor: 'blue', borderWidth: 1,color:'#000'  }} 
           textColor="#000" // warna teks (input)
-          placeholderTextColor="gray" // warna placeholder
+          placeholderTextColor="#000" // warna placeholder
         />
       )}
 

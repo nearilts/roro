@@ -9,7 +9,7 @@ const CekBookingScreen = ({ navigation }) => {
   const [buttonLoading, setButtonLoading] = useState(false);
 
   const fetchBookingDetail = async () => {
-    if ( !bookingNumber || !Email) {
+    if ( !bookingNumber) {
       alert('Masukkan No Booking terlebih dahulu!');
       return;
     }
@@ -18,14 +18,14 @@ const CekBookingScreen = ({ navigation }) => {
     try {
       setBookingData(null);
 
-      const response = await fetch('https://cigading.krakatauport.id:8020/api/roro/check_booking_email', {
+      const response = await fetch('https://cigading.krakatauport.id:8020/api/roro/check_booking_ticked_id', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           value1: bookingNumber,
-          value2: Email,
+          // value2: Email,
         }),
       });
 
@@ -50,7 +50,6 @@ const CekBookingScreen = ({ navigation }) => {
 
   const { booking, down_payment, project_detail } = bookingData || {};
   const roroBooking = booking?.roro_booking;
-
   return (
     <ScrollView>
       <StatusBar translucent backgroundColor="#01468A" />
@@ -78,14 +77,14 @@ const CekBookingScreen = ({ navigation }) => {
             placeholderTextColor="gray" // warna placeholder
           />
 
-          <TextInput
+          {/* <TextInput
             style={styles.input}
             placeholder="Masukkan Email"
             value={Email}
             onChangeText={setEmail}
             textColor="#000" // warna teks (input)
             placeholderTextColor="gray" // warna placeholder
-          />
+          /> */}
           <TouchableOpacity style={styles.button} onPress={fetchBookingDetail} disabled={buttonLoading}>
             {buttonLoading ? (
               <ActivityIndicator size="small" color="#fff" />
@@ -106,24 +105,36 @@ const CekBookingScreen = ({ navigation }) => {
               </View>
 
               <View style={styles.rowBetween}>
-                <Text style={styles.label}>Nama Pemesan:</Text>
-                <Text style={styles.value}>{roroBooking?.order_name}</Text>
+                <Text style={styles.label}>Golongan:</Text>
+                <Text style={styles.value}>{roroBooking?.golongan}</Text>
+              </View>
+              <View style={styles.rowBetween}>
+                <Text style={styles.label}>Ticket:</Text>
+                <Text style={styles.value}>{roroBooking?.ticket_id}</Text>
+              </View>
+              <View style={styles.rowBetween}>
+                <Text style={styles.label}>Boarding Pass Id:</Text>
+                <Text style={styles.value}>{roroBooking?.boarding_pass_id}</Text>
+              </View>
+              <View style={styles.rowBetween}>
+                <Text style={styles.label}>Boarding Pass Code:</Text>
+                <Text style={styles.value}>{roroBooking?.boarding_pass_code}</Text>
               </View>
 
-              <View style={styles.rowBetween}>
+              {/* <View style={styles.rowBetween}>
                 <Text style={styles.label}>Status Pembayaran:</Text>
                 <Text style={[styles.value, { color: 'red' }]}>Belum Lunas</Text>
-              </View>
+              </View> */}
 
               <View style={styles.rowBetween}>
                 <Text style={styles.label}>No Booking:</Text>
                 <Text style={styles.value}>{booking?.no_booking}</Text>
               </View>
 
-              <View style={styles.rowBetween}>
+              {/* <View style={styles.rowBetween}>
                 <Text style={styles.label}>Batas Waktu Pembayaran:</Text>
                 <Text style={styles.value}>{down_payment?.expired_date}</Text>
-              </View>
+              </View> */}
 
               <View style={styles.separator} />
 

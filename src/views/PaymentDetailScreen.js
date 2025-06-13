@@ -3,21 +3,19 @@ import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, ActivityIn
 import { CommonActions } from '@react-navigation/native';
 
 const PaymentDetailScreen = ({ navigation, route }) => {
-  console.log('params : ', route.params.booking.no_booking)
+  console.log('params : ', route.params.data)
   const [bookingData, setBookingData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [buttonLoading, setButtonLoading] = useState(false);
 
   const fetchBookingDetail = async () => {
     try {
-      const response = await fetch('https://cigading.krakatauport.id:8020/api/roro/check_booking', {
-        method: 'POST',
+      const response = await fetch('https://cigading.krakatauport.id:8020/api/roro/booking_detail/'+route.params.data.id, {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          value: route.params.booking.no_booking
-        }),
+       
       });
 
       const json = await response.json();
@@ -56,7 +54,7 @@ const PaymentDetailScreen = ({ navigation, route }) => {
     );
   }
 
-  const { booking, down_payment, project_detail } = bookingData;
+  const { booking, down_payment, roro_booking_detail } = bookingData;
   const roroBooking = booking?.roro_booking;
 
   const fetchProjectDetail = async () => {
@@ -87,12 +85,16 @@ const PaymentDetailScreen = ({ navigation, route }) => {
 
           <View style={styles.rowBetween}>
             <Text style={styles.label}>Tanggal Booking:</Text>
-            <Text style={styles.value}>{new Date(booking?.created).toLocaleDateString('id-ID')}</Text>
+            <Text style={styles.value}>{new Date(bookingData?.created).toLocaleDateString('id-ID')}</Text>
           </View>
 
           <View style={styles.rowBetween}>
+            <Text style={styles.label}>Email Pemesan:</Text>
+            <Text style={styles.value}>{bookingData?.email}</Text>
+          </View>
+          <View style={styles.rowBetween}>
             <Text style={styles.label}>Nama Pemesan:</Text>
-            <Text style={styles.value}>{roroBooking?.order_name}</Text>
+            <Text style={styles.value}>{bookingData?.order_name}</Text>
           </View>
 
           <View style={styles.rowBetween}>
@@ -100,46 +102,10 @@ const PaymentDetailScreen = ({ navigation, route }) => {
             <Text style={[styles.value, { color: 'red' }]}>Belum Lunas</Text>
           </View>
 
-          <View style={styles.rowBetween}>
-            <Text style={styles.label}>No Booking:</Text>
-            <Text style={styles.value}>{booking?.no_booking}</Text>
-          </View>
-
-          <View style={styles.rowBetween}>
-            <Text style={styles.label}>Batas Waktu Pembayaran:</Text>
-            <Text style={styles.value}>{down_payment?.expired_date}</Text>
-          </View>
 
           <View style={styles.separator} />
 
-          {project_detail.map((item, index) => (
-        <View style={[styles.rowBetween, { alignItems: 'flex-start', marginBottom: 4 }]} key={index}>
-          <Text style={[styles.label, { flex: 1, paddingRight: 8 }]} numberOfLines={2}>
-            {item.service_code.name}
-          </Text>
-          <Text style={[styles.value, { textAlign: 'right' }]}>
-            Rp{parseInt(item.val_formula_1).toLocaleString('id-ID')},000
-          </Text>
-        </View>
-      ))}
-
-
-          <View style={styles.rowBetween}>
-            <Text style={[styles.label, { fontWeight: 'bold' }]}>Jumlah yang harus dibayar</Text>
-            <Text style={[styles.value, { fontWeight: 'bold' }]}>
-              Rp{project_detail.reduce((sum, item) => sum + parseInt(item.val_formula_1), 0).toLocaleString('id-ID')},000
-            </Text>
-          </View>
-
-          <View style={styles.infoBox}>
-            <Text style={styles.infoText}>
-              Silahkan melakukan pembayaran melalui <Text style={styles.bold}>Bank Mandiri</Text> menggunakan Referensi No:
-              <Text style={styles.reference}> {bookingData?.bp_no}</Text>
-            </Text>
-            <Text style={[styles.infoText, { marginTop: 8 }]}>
-              Untuk Bank lain, gunakan Referensi No: <Text style={styles.reference}> {bookingData?.va_no}</Text>
-            </Text>
-          </View>
+          
           <TouchableOpacity style={styles.button} onPress={fetchProjectDetail} disabled={buttonLoading}>
             {buttonLoading ? (
               <ActivityIndicator size="small" color="#fff" />

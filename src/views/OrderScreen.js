@@ -29,7 +29,7 @@ const OrderHeader = ({navigation, route}) => {
       age,
       "dwelling" : {
         "id" : City.id,
-        "code" : City.code,
+        "code" : City.id,
         "label" : City.name,
       },
     };
@@ -121,19 +121,19 @@ const OrderHeader = ({navigation, route}) => {
 
   const fetchData = async (finalData) => {
     setLoading(true);
-    console.log("s")
+    console.log("s",finalData)
 
     try {
       const response = await axios.post(`${baseUrl}/api/roro/booking`, finalData);
 
       console.log(response.data)
-     if (response.data.booking) {
+     if (response.data.code == 200) {
       alert('Berhasil Booking');
       navigation.navigate('PaymentDetailScreen', response.data);
      }
     } catch (error) {
-      alert('Error fetching data');
-
+      alert('Error fetching datas');
+      console.log('Response data:', error.response.data); 
       console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
