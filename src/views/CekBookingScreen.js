@@ -1,15 +1,60 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, ActivityIndicator, TextInput, StatusBar } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, ActivityIndicator, TextInput, StatusBar, Alert, Platform } from 'react-native';
 import { CommonActions } from '@react-navigation/native';
+import { CameraView, Camera } from 'expo-camera';
+import { Ionicons } from '@expo/vector-icons';
 
 const CekBookingScreen = ({ navigation }) => {
   const [bookingNumber, setBookingNumber] = useState('');
   const [Email, setEmail] = useState('');
   const [bookingData, setBookingData] = useState(null);
   const [buttonLoading, setButtonLoading] = useState(false);
+  
+  // QR Scanner states
+  const [hasPermission, setHasPermission] = useState(null);
+  const [scanned, setScanned] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
+
+  // Request camera permission when component mounts
+  useEffect(() => {
+    const getCameraPermissions = async () => {
+      const { status } = await Camera.requestCameraPermissionsAsync();
+      setHasPermission(status === 'granted');
+    };
+
+    getCameraPermissions();
+  }, []);
+
+  const handleBarcodeScanned = ({ type, data }) => {
+    setScanned(true);
+    setBookingNumber(data); 
+    setShowScanner(false);
+    Alert.alert(
+      'QR Code Berhasil Dipindai',
+      `No Booking: ${data}`,
+      [{ text: 'OK', onPress: () => setScanned(false) }]
+    );
+  };
+
+  const openQRScanner = () => {
+    if (hasPermission === null) {
+      Alert.alert('Meminta Izin', 'Meminta izin akses kamera...');
+      return;
+    }
+    if (hasPermission === false) {
+      Alert.alert(
+        'Izin Kamera Ditolak',
+        'Aplikasi memerlukan akses kamera untuk memindai QR code. Silakan aktifkan di pengaturan.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+    setScanned(false);
+    setShowScanner(true);
+  };
 
   const fetchBookingDetail = async () => {
-    if ( !bookingNumber) {
+    if (!bookingNumber) {
       alert('Masukkan No Booking terlebih dahulu!');
       return;
     }
@@ -48,8 +93,61 @@ const CekBookingScreen = ({ navigation }) => {
     }
   };
 
+  // QR Scanner Component
+  if (showScanner) {
+    return (
+      <View style={styles.scannerContainer}>
+        <StatusBar translucent backgroundColor="#000" />
+        <CameraView
+          style={StyleSheet.absoluteFillObject}
+          facing="back"
+          onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
+          barcodeScannerSettings={{
+            barcodeTypes: ["qr", "pdf417"],
+          }}
+        />
+        
+        {/* Scanner Overlay */}
+        <View style={styles.scannerOverlay}>
+          <View style={styles.scannerHeader}>
+            <TouchableOpacity 
+              style={styles.closeButton}
+              onPress={() => setShowScanner(false)}
+            >
+              <Ionicons name="close" size={30} color="white" />
+            </TouchableOpacity>
+          </View>
+          
+          <View style={styles.scannerFrame}>
+            <View style={styles.scannerBox}>
+              <View style={[styles.corner, styles.topLeft]} />
+              <View style={[styles.corner, styles.topRight]} />
+              <View style={[styles.corner, styles.bottomLeft]} />
+              <View style={[styles.corner, styles.bottomRight]} />
+            </View>
+          </View>
+          
+          <View style={styles.scannerFooter}>
+            <Text style={styles.scannerText}>
+              Arahkan kamera ke QR Code No Booking
+            </Text>
+            {scanned && (
+              <TouchableOpacity 
+                style={styles.rescanButton}
+                onPress={() => setScanned(false)}
+              >
+                <Text style={styles.rescanText}>Pindai Ulang</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+      </View>
+    );
+  }
+
   const { booking, down_payment, project_detail } = bookingData || {};
   const roroBooking = booking?.roro_booking;
+
   return (
     <ScrollView>
       <StatusBar translucent backgroundColor="#01468A" />
@@ -68,23 +166,23 @@ const CekBookingScreen = ({ navigation }) => {
         <View style={styles.card}>
           <Text style={styles.title}>Cek Booking</Text>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Masukkan No Booking"
-            value={bookingNumber}
-            onChangeText={setBookingNumber}
-            textColor="#000" // warna teks (input)
-            placeholderTextColor="gray" // warna placeholder
-          />
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="Masukkan No Booking"
+              value={bookingNumber}
+              onChangeText={setBookingNumber}
+              textColor="#000"
+              placeholderTextColor="gray"
+            />
+            <TouchableOpacity 
+              style={styles.qrButton}
+              onPress={openQRScanner}
+            >
+              <Ionicons name="qr-code" size={24} color="#2563eb" />
+            </TouchableOpacity>
+          </View>
 
-          {/* <TextInput
-            style={styles.input}
-            placeholder="Masukkan Email"
-            value={Email}
-            onChangeText={setEmail}
-            textColor="#000" // warna teks (input)
-            placeholderTextColor="gray" // warna placeholder
-          /> */}
           <TouchableOpacity style={styles.button} onPress={fetchBookingDetail} disabled={buttonLoading}>
             {buttonLoading ? (
               <ActivityIndicator size="small" color="#fff" />
@@ -109,66 +207,39 @@ const CekBookingScreen = ({ navigation }) => {
                 <Text style={styles.value}>{roroBooking?.golongan}</Text>
               </View>
               <View style={styles.rowBetween}>
-                <Text style={styles.label}>Ticket:</Text>
-                <Text style={styles.value}>{roroBooking?.ticket_id}</Text>
+                <Text style={styles.label}>Plat Nomor:</Text>
+                <Text style={styles.value}>{roroBooking?.police_number}</Text>
               </View>
-              <View style={styles.rowBetween}>
-                <Text style={styles.label}>Boarding Pass Id:</Text>
-                <Text style={styles.value}>{roroBooking?.boarding_pass_id}</Text>
-              </View>
-              <View style={styles.rowBetween}>
-                <Text style={styles.label}>Boarding Pass Code:</Text>
-                <Text style={styles.value}>{roroBooking?.boarding_pass_code}</Text>
-              </View>
-
-              {/* <View style={styles.rowBetween}>
-                <Text style={styles.label}>Status Pembayaran:</Text>
-                <Text style={[styles.value, { color: 'red' }]}>Belum Lunas</Text>
-              </View> */}
 
               <View style={styles.rowBetween}>
                 <Text style={styles.label}>No Booking:</Text>
                 <Text style={styles.value}>{booking?.no_booking}</Text>
               </View>
 
-              {/* <View style={styles.rowBetween}>
-                <Text style={styles.label}>Batas Waktu Pembayaran:</Text>
-                <Text style={styles.value}>{down_payment?.expired_date}</Text>
-              </View> */}
+              <View style={styles.rowBetween}>
+              <Text style={styles.label}>Status:</Text>
+              <View style={[
+                styles.statusBox,
+                roroBooking?.status_alp === 'released' && styles.statusReleased,
+                roroBooking?.status_alp === 'cancel' && styles.statusCancel,
+                roroBooking?.status_alp === 'onBoard' && styles.statusOnBoard,
+                roroBooking?.status_alp === 'cancelBoarding' && styles.statusCancel // gunakan gaya cancel
+              ]}>
+                 <Text style={styles.infoText}>
+                {roroBooking?.status_alp === 'released' && 'RELEASED'}
+                {roroBooking?.status_alp === 'cancel' && 'CANCEL'}
+                {roroBooking?.status_alp === 'onBoard' && 'ON BOARD'}
+                {roroBooking?.status_alp === 'cancelBoarding' && 'CANCEL BOARDING'}
+              </Text>
+              </View>
+            </View>
 
               <View style={styles.separator} />
 
-              {project_detail.map((item, index) => (
-                <View style={[styles.rowBetween, { alignItems: 'flex-start', marginBottom: 4 }]} key={index}>
-                  <Text style={[styles.label, { flex: 1, paddingRight: 8 }]} numberOfLines={2}>
-                    {item.service_code.name}
-                  </Text>
-                  <Text style={[styles.value, { textAlign: 'right' }]}>
-                    Rp{parseInt(item.val_formula_1).toLocaleString('id-ID')},000
-                  </Text>
-                </View>
-              ))}
 
-              <View style={styles.rowBetween}>
-                <Text style={[styles.label, { fontWeight: 'bold' }]}>Jumlah yang harus dibayar</Text>
-                <Text style={[styles.value, { fontWeight: 'bold' }]}>
-                  Rp{project_detail.reduce((sum, item) => sum + parseInt(item.val_formula_1), 0).toLocaleString('id-ID')},000
-                </Text>
-              </View>
-
-              <View style={styles.infoBox}>
-                <Text style={styles.infoText}>
-                  Silahkan melakukan pembayaran melalui <Text style={styles.bold}>Bank Mandiri</Text> menggunakan Referensi No:
-                  <Text style={styles.reference}> {bookingData?.bp_no}</Text>
-                </Text>
-                <Text style={[styles.infoText, { marginTop: 8 }]}>
-                  Untuk Bank lain, gunakan Referensi No: <Text style={styles.reference}> {bookingData?.va_no}</Text>
-                </Text>
-              </View>
+              
             </>
           )}
-
-
         </View>
       </View>
     </ScrollView>
@@ -180,8 +251,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#01468A',
     padding: 16,
     alignItems: 'center',
-    flex:1,
-    top:10
+    flex: 1,
+    top: 10
   },
   leftContent: {
     paddingTop: 20,
@@ -191,8 +262,8 @@ const styles = StyleSheet.create({
   logo: {
     width: 140,
     height: 50,
-  }
-  ,container: {
+  },
+  container: {
     padding: 16,
     backgroundColor: '#f1f5f9',
   },
@@ -210,6 +281,31 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 12,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  input: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#cbd5e1',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 8,
+    marginTop: 8,
+    fontSize: 14,
+    marginRight: 8,
+  },
+  qrButton: {
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#2563eb',
+    borderRadius: 8,
+    marginTop: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   rowBetween: {
     flexDirection: 'row',
@@ -230,22 +326,16 @@ const styles = StyleSheet.create({
     borderBottomColor: '#e2e8f0',
     marginVertical: 12,
   },
-  timer: {
-    fontSize: 12,
-    color: 'gray',
-    marginTop: -6,
-    marginBottom: 8,
-    textAlign: 'right',
-  },
   infoBox: {
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#90CAF9',
     borderRadius: 12,
     padding: 12,
-    marginTop: 16,
+    alignItems:'center'
   },
   infoText: {
-    fontSize: 13,
+    fontSize: 16,
     color: '#1e293b',
+    fontWeight: 'bold',
   },
   bold: {
     fontWeight: 'bold',
@@ -266,15 +356,114 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
-  input: {
-    borderWidth: 1,
-    borderColor: '#cbd5e1',
-    paddingHorizontal: 12,
+  // QR Scanner Styles
+  scannerContainer: {
+    flex: 1,
+    backgroundColor: 'black',
+  },
+  scannerOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  scannerHeader: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'flex-start',
+    paddingTop: 50,
+    paddingRight: 20,
+  },
+  closeButton: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: 20,
+    padding: 8,
+  },
+  scannerFrame: {
+    flex: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  scannerBox: {
+    width: 250,
+    height: 250,
+    position: 'relative',
+  },
+  corner: {
+    position: 'absolute',
+    width: 30,
+    height: 30,
+    borderColor: '#2563eb',
+  },
+  topLeft: {
+    top: 0,
+    left: 0,
+    borderTopWidth: 4,
+    borderLeftWidth: 4,
+  },
+  topRight: {
+    top: 0,
+    right: 0,
+    borderTopWidth: 4,
+    borderRightWidth: 4,
+  },
+  bottomLeft: {
+    bottom: 0,
+    left: 0,
+    borderBottomWidth: 4,
+    borderLeftWidth: 4,
+  },
+  bottomRight: {
+    bottom: 0,
+    right: 0,
+    borderBottomWidth: 4,
+    borderRightWidth: 4,
+  },
+  scannerFooter: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  scannerText: {
+    color: 'white',
+    fontSize: 16,
+    textAlign: 'center',
+    paddingHorizontal: 20,
+  },
+  rescanButton: {
+    backgroundColor: '#2563eb',
+    paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,
-    marginTop: 8,
-    marginBottom: 16,
-    fontSize: 14,
+    marginTop: 20,
+  },
+  rescanText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+
+  // Status Box Styles
+  statusBox: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+    minWidth: 80,
+    alignItems: 'center',
+  },
+  statusReleased: {
+    backgroundColor: '#dcfce7', // Light green background
+    borderWidth: 1,
+    borderColor: '#16a34a', // Green border
+  },
+  statusCancel: {
+    backgroundColor: '#fef2f2', // Light red background
+    borderWidth: 1,
+    borderColor: '#dc2626', // Red border
+  },
+  statusOnBoard: {
+    backgroundColor: '#dbeafe', // Light blue background
+    borderWidth: 1,
+    borderColor: '#2563eb', // Blue border
   },
 });
 
