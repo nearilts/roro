@@ -78,9 +78,9 @@ const BookingScreen = ({navigation}) => {
   
   const renderItem = ({ item }) => (
     <View style={styles.itemRow}>
-      <Text style={{ color:'#000'}}>{item.vessel_name}</Text>
-      <Text style={{ color:'#000'}}>{item.est_departure}</Text>
-      <Text style={{ color:'#000'}}>{item.origin_port} → {item.destination_port}</Text>
+      <Text style={styles.itemText}>{item.vessel_name}</Text>
+      <Text style={styles.itemText}>{item.est_departure}</Text>
+      <Text style={styles.itemText}>{item.origin_port} → {item.destination_port}</Text>
       <TouchableOpacity
         style={styles.button}
         onPress={() => navigation.navigate('OrderScreen', item)}
@@ -247,24 +247,33 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 20,
-    color:'#000'
+    color: '#1e293b',
   }, 
   itemRow: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 10,
+    borderColor: '#e2e8f0',
+    padding: 12,
     marginBottom: 10,
     borderRadius: 8,
+    backgroundColor: '#f8fafc',
+  },
+  itemText: {
+    fontSize: 14,
+    color: '#334155',
+    marginBottom: 4,
+    fontWeight: '500',
   },
   button: {
     marginTop: 10,
     backgroundColor: '#01468A',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 4,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 6,
     alignSelf: 'flex-start',
   },
   buttonText: {
-    color: '#fff',
+    color: '#ffffff',
+    fontWeight: 'bold',
+    fontSize: 14,
   },
 });

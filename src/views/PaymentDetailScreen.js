@@ -49,7 +49,7 @@ const PaymentDetailScreen = ({ navigation, route }) => {
   if (!bookingData) {
     return (
       <View style={{ flex:1, justifyContent:'center', alignItems:'center' }}>
-        <Text>Gagal mengambil data booking.</Text>
+        <Text style={{ color: '#dc2626', fontSize: 16 }}>Gagal mengambil data booking.</Text>
       </View>
     );
   }
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 12,
-    color:'#000'
+    color: '#1e293b',
   },
   rowBetween: {
     flexDirection: 'row',
@@ -185,6 +185,7 @@ const styles = StyleSheet.create({
   value: {
     fontSize: 14,
     color: '#0f172a',
+    fontWeight: '600',
   },
   separator: {
     borderBottomWidth: 1,
@@ -193,7 +194,7 @@ const styles = StyleSheet.create({
   },
   timer: {
     fontSize: 12,
-    color: 'gray',
+    color: '#64748b',
     marginTop: -6,
     marginBottom: 8,
     textAlign: 'right',
@@ -210,8 +211,7 @@ const styles = StyleSheet.create({
   },
   bold: {
     fontWeight: 'bold',
-    color:'#000'
-
+    color: '#1e293b',
   },
   reference: {
     fontWeight: 'bold',

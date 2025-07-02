@@ -29,11 +29,10 @@ const CekBookingScreen = ({ navigation }) => {
     setScanned(true);
     setBookingNumber(data); 
     setShowScanner(false);
-    Alert.alert(
-      'QR Code Berhasil Dipindai',
-      `No Booking: ${data}`,
-      [{ text: 'OK', onPress: () => setScanned(false) }]
-    );
+    
+   
+    // Delay singkat untuk memastikan state terupdate, lalu langsung fetch
+   fetchBookingDetailWithNumber(data);
   };
 
   const openQRScanner = () => {
@@ -55,7 +54,7 @@ const CekBookingScreen = ({ navigation }) => {
 
   const fetchBookingDetail = async () => {
     if (!bookingNumber) {
-      alert('Masukkan No Booking terlebih dahulu!');
+      Alert.alert('Peringatan', 'Masukkan No Booking terlebih dahulu!');
       return;
     }
 
@@ -79,14 +78,57 @@ const CekBookingScreen = ({ navigation }) => {
 
       if (json.code === 200) {
         setBookingData(json.data);
+        Alert.alert('Sukses', 'Data booking berhasil ditemukan!');
       } else {
         setBookingData(null);
-        alert('No Booking Tidak Ditemukan');
+        Alert.alert('Tidak Ditemukan', 'No Booking tidak ditemukan di sistem.');
         console.error('Error fetching booking data:', json.message);
       }
     } catch (error) {
       setBookingData(null);
-      alert('Fetch error');
+      Alert.alert('Error', 'Terjadi kesalahan saat mengambil data. Silakan coba lagi.');
+      console.error('Fetch error:', error);
+    } finally {
+      setButtonLoading(false);
+    }
+  };
+
+  // Fungsi khusus untuk QR Scanner dengan parameter
+  const fetchBookingDetailWithNumber = async (number) => {
+    if (!number) {
+      Alert.alert('Error', 'Nomor booking tidak valid!');
+      return;
+    }
+
+    setButtonLoading(true);
+    try {
+      setBookingData(null);
+
+      const response = await fetch('https://cigading.krakatauport.id:8020/api/roro/check_booking_ticked_id', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          value1: number,
+          // value2: Email,
+        }),
+      });
+
+      const json = await response.json();
+      console.log('Response JSON:', json);
+
+      if (json.code === 200) {
+        setBookingData(json.data);
+        Alert.alert('Sukses', 'Data booking berhasil ditemukan!');
+      } else {
+        setBookingData(null);
+        Alert.alert('Tidak Ditemukan', 'No Booking tidak ditemukan di sistem.');
+        console.error('Error fetching booking data:', json.message);
+      }
+    } catch (error) {
+      setBookingData(null);
+      Alert.alert('Error', 'Terjadi kesalahan saat mengambil data. Silakan coba lagi.');
       console.error('Fetch error:', error);
     } finally {
       setButtonLoading(false);
@@ -172,8 +214,7 @@ const CekBookingScreen = ({ navigation }) => {
               placeholder="Masukkan No Booking"
               value={bookingNumber}
               onChangeText={setBookingNumber}
-              textColor="#000"
-              placeholderTextColor="gray"
+              placeholderTextColor="#64748b"
             />
             <TouchableOpacity 
               style={styles.qrButton}
@@ -225,7 +266,12 @@ const CekBookingScreen = ({ navigation }) => {
                 roroBooking?.status_alp === 'onBoard' && styles.statusOnBoard,
                 roroBooking?.status_alp === 'cancelBoarding' && styles.statusCancel // gunakan gaya cancel
               ]}>
-                 <Text style={styles.infoText}>
+                 <Text style={[
+                   roroBooking?.status_alp === 'released' && styles.statusTextReleased,
+                   roroBooking?.status_alp === 'cancel' && styles.statusTextCancel,
+                   roroBooking?.status_alp === 'onBoard' && styles.statusTextOnBoard,
+                   roroBooking?.status_alp === 'cancelBoarding' && styles.statusTextCancel
+                 ]}>
                 {roroBooking?.status_alp === 'released' && 'RELEASED'}
                 {roroBooking?.status_alp === 'cancel' && 'CANCEL'}
                 {roroBooking?.status_alp === 'onBoard' && 'ON BOARD'}
@@ -281,6 +327,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 12,
+    color: '#1e293b',
   },
   inputContainer: {
     flexDirection: 'row',
@@ -297,6 +344,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: 14,
     marginRight: 8,
+    color: '#1e293b',
   },
   qrButton: {
     padding: 12,
@@ -320,6 +368,7 @@ const styles = StyleSheet.create({
   value: {
     fontSize: 14,
     color: '#0f172a',
+    fontWeight: '600',
   },
   separator: {
     borderBottomWidth: 1,
@@ -333,12 +382,13 @@ const styles = StyleSheet.create({
     alignItems:'center'
   },
   infoText: {
-    fontSize: 16,
+    fontSize: 12,
     color: '#1e293b',
     fontWeight: 'bold',
   },
   bold: {
     fontWeight: 'bold',
+    color: '#1e293b',
   },
   reference: {
     fontWeight: 'bold',
@@ -464,6 +514,21 @@ const styles = StyleSheet.create({
     backgroundColor: '#dbeafe', // Light blue background
     borderWidth: 1,
     borderColor: '#2563eb', // Blue border
+  },
+  statusTextReleased: {
+    fontSize: 12,
+    color: '#16a34a', // Green text
+    fontWeight: 'bold',
+  },
+  statusTextCancel: {
+    fontSize: 12,
+    color: '#dc2626', // Red text
+    fontWeight: 'bold',
+  },
+  statusTextOnBoard: {
+    fontSize: 12,
+    color: '#2563eb', // Blue text
+    fontWeight: 'bold',
   },
 });
 

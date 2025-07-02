@@ -562,7 +562,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   required: {
-    color: 'red',
+    color: '#dc2626',
   },
   input: {
     borderWidth: 1,
@@ -572,7 +572,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     marginBottom: 16,
     backgroundColor: '#fff',
-     color:'#000'
+    color: '#1e293b',
   },
   note: {
     fontSize: 12,
@@ -588,7 +588,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   buttonText: {
-    color: '#fff',
+    color: '#ffffff',
     fontWeight: 'bold',
   },
   table: {
@@ -600,20 +600,23 @@ const styles = StyleSheet.create({
   tableHeader: {
     fontWeight: 'bold',
     marginBottom: 8,
+    color: '#1e293b',
   },
   tableRow: {
    borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#e2e8f0',
     padding: 10,
     marginBottom: 10,
     borderRadius: 8,
+    backgroundColor: '#f8fafc',
   },
   cell: {
     flex: 1,
     fontSize: 13,
+    color: '#334155',
   },
   delete: {
-    color: 'red',
+    color: '#dc2626',
     fontWeight: 'bold',
   },
   noData: {
