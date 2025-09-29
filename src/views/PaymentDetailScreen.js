@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, ActivityIndicator, StatusBar } from 'react-native';
 import { CommonActions } from '@react-navigation/native';
+import { API_URLS, IMAGE_URLS } from '../config/api';
 
 const PaymentDetailScreen = ({ navigation, route }) => {
   console.log('params : ', route.params.data)
@@ -10,7 +11,7 @@ const PaymentDetailScreen = ({ navigation, route }) => {
 
   const fetchBookingDetail = async () => {
     try {
-      const response = await fetch('https://cigading.krakatauport.id:8020/api/roro/booking_detail/'+route.params.data.id, {
+      const response = await fetch(API_URLS.BOOKING_DETAIL(route.params.data.id), {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -72,7 +73,7 @@ const PaymentDetailScreen = ({ navigation, route }) => {
       <View style={styles.headerContainer}>
         <View style={styles.leftContent}>
           <Image
-            source={{ uri: 'https://cigading.krakatauport.id:8021/_nuxt/img/kipos-4x-removebg-preview.948721e.png' }}
+            source={{ uri: IMAGE_URLS.LOGO }}
             style={styles.logo}
             resizeMode="contain"
           />

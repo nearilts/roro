@@ -5,6 +5,7 @@ import axios from 'axios';
 import { TouchableOpacity } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
+import { API_URLS, IMAGE_URLS } from '../config/api';
 
 const BookingScreen = ({navigation}) => {
   const [portOrigins, setPortOrigins] = useState([]);
@@ -20,13 +21,11 @@ const BookingScreen = ({navigation}) => {
   const [isLoading, setLoading] = useState(false);
   const [data, setData] = useState([]);
 
-  const baseUrl = 'https://cigading.krakatauport.id:8020';
-
   useEffect(() => {
     const fetchPorts = async () => {
       try {
-        const originRes = await axios.get(`${baseUrl}/api/roro/list_port_origin`);
-        const destRes = await axios.get(`${baseUrl}/api/roro/list_port_destination`);
+        const originRes = await axios.get(API_URLS.LIST_PORT_ORIGIN);
+        const destRes = await axios.get(API_URLS.LIST_PORT_DESTINATION);
         setPortOrigins(originRes.data.data);
         setPortDestinations(destRes.data.data);
       } catch (err) {
@@ -44,7 +43,7 @@ const BookingScreen = ({navigation}) => {
     console.log("s")
 
     try {
-      const response = await axios.get(`${baseUrl}/api/roro/list_schedule`, {
+      const response = await axios.get(API_URLS.LIST_SCHEDULE, {
         params: {
           origin_port: originPort?.name,
           destination_port: destinationPort?.name,
@@ -98,7 +97,7 @@ const BookingScreen = ({navigation}) => {
         <View style={styles.headerContainer}>
             <View style={styles.leftContent}>
             <Image
-                source={{ uri: 'https://cigading.krakatauport.id:8021/_nuxt/img/kipos-4x-removebg-preview.948721e.png' }}
+                source={{ uri: IMAGE_URLS.LOGO }}
                 style={styles.logo}
                 resizeMode="contain"
             />

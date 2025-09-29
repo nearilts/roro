@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, ActivityIn
 import { CommonActions } from '@react-navigation/native';
 import { CameraView, Camera } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
+import { API_URLS, IMAGE_URLS } from '../config/api';
 
 const CekBookingScreen = ({ navigation }) => {
   const [bookingNumber, setBookingNumber] = useState('');
@@ -26,13 +27,28 @@ const CekBookingScreen = ({ navigation }) => {
   }, []);
 
   const handleBarcodeScanned = ({ type, data }) => {
+    if (scanned) return; // Prevent multiple scans
+    
     setScanned(true);
     setBookingNumber(data); 
     setShowScanner(false);
     
-   
-    // Delay singkat untuk memastikan state terupdate, lalu langsung fetch
-   fetchBookingDetailWithNumber(data);
+    // Show success message first
+    Alert.alert(
+      'QR Code Berhasil Dipindai',
+      `No Booking: ${data}`,
+      [
+        { 
+          text: 'OK', 
+          onPress: () => {
+            // Add delay to ensure state updates
+            setTimeout(() => {
+              fetchBookingDetailWithNumber(data);
+            }, 500);
+          }
+        }
+      ]
+    );
   };
 
   const openQRScanner = () => {
@@ -62,7 +78,7 @@ const CekBookingScreen = ({ navigation }) => {
     try {
       setBookingData(null);
 
-      const response = await fetch('https://cigading.krakatauport.id:8020/api/roro/check_booking_ticked_id', {
+      const response = await fetch(API_URLS.CHECK_BOOKING, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -95,7 +111,9 @@ const CekBookingScreen = ({ navigation }) => {
 
   // Fungsi khusus untuk QR Scanner dengan parameter
   const fetchBookingDetailWithNumber = async (number) => {
-    if (!number) {
+    console.log('fetchBookingDetailWithNumber called with:', number);
+    
+    if (!number || typeof number !== 'string') {
       Alert.alert('Error', 'Nomor booking tidak valid!');
       return;
     }
@@ -103,33 +121,37 @@ const CekBookingScreen = ({ navigation }) => {
     setButtonLoading(true);
     try {
       setBookingData(null);
+      console.log('Making API call to:', API_URLS.CHECK_BOOKING);
 
-      const response = await fetch('https://cigading.krakatauport.id:8020/api/roro/check_booking_ticked_id', {
+      const response = await fetch(API_URLS.CHECK_BOOKING, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          value1: number,
-          // value2: Email,
+          value1: number.trim(),
         }),
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       const json = await response.json();
       console.log('Response JSON:', json);
 
-      if (json.code === 200) {
+      if (json.code === 200 && json.data) {
         setBookingData(json.data);
         Alert.alert('Sukses', 'Data booking berhasil ditemukan!');
       } else {
         setBookingData(null);
         Alert.alert('Tidak Ditemukan', 'No Booking tidak ditemukan di sistem.');
-        console.error('Error fetching booking data:', json.message);
+        console.error('Error fetching booking data:', json.message || 'Unknown error');
       }
     } catch (error) {
       setBookingData(null);
-      Alert.alert('Error', 'Terjadi kesalahan saat mengambil data. Silakan coba lagi.');
-      console.error('Fetch error:', error);
+      console.error('Fetch error details:', error);
+      Alert.alert('Error', `Terjadi kesalahan: ${error.message}. Silakan coba lagi.`);
     } finally {
       setButtonLoading(false);
     }
@@ -140,14 +162,22 @@ const CekBookingScreen = ({ navigation }) => {
     return (
       <View style={styles.scannerContainer}>
         <StatusBar translucent backgroundColor="#000" />
-        <CameraView
-          style={StyleSheet.absoluteFillObject}
-          facing="back"
-          onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
-          barcodeScannerSettings={{
-            barcodeTypes: ["qr", "pdf417"],
-          }}
-        />
+        {hasPermission ? (
+          <CameraView
+            style={StyleSheet.absoluteFillObject}
+            facing="back"
+            onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
+            barcodeScannerSettings={{
+              barcodeTypes: ["qr", "pdf417"],
+            }}
+          />
+        ) : (
+          <View style={styles.permissionError}>
+            <Text style={styles.permissionErrorText}>
+              Kamera tidak tersedia atau izin ditolak
+            </Text>
+          </View>
+        )}
         
         {/* Scanner Overlay */}
         <View style={styles.scannerOverlay}>
@@ -197,7 +227,7 @@ const CekBookingScreen = ({ navigation }) => {
       <View style={styles.headerContainer}>
         <View style={styles.leftContent}>
           <Image
-            source={{ uri: 'https://cigading.krakatauport.id:8021/_nuxt/img/kipos-4x-removebg-preview.948721e.png' }}
+            source={{ uri: IMAGE_URLS.LOGO }}
             style={styles.logo}
             resizeMode="contain"
           />
@@ -490,6 +520,18 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  permissionError: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000',
+  },
+  permissionErrorText: {
+    color: 'white',
+    fontSize: 16,
+    textAlign: 'center',
+    paddingHorizontal: 20,
   },
 
   // Status Box Styles

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Image, TouchableOpacity,  ScrollView, StatusBar
 import { MaterialIcons } from '@expo/vector-icons';
 import axios from 'axios';
 import { Menu, TextInput,ActivityIndicator  } from 'react-native-paper';
+import { API_URLS, IMAGE_URLS } from '../config/api';
 
 const OrderHeader = ({navigation, route}) => {
   console.log(route.params)
@@ -14,6 +15,40 @@ const OrderHeader = ({navigation, route}) => {
   const [domicile, setDomicile] = useState('');
   const [passengers, setPassengers] = useState([]);
   const [City, setCity] = useState(null);
+
+  const [Datas, setDatas] = useState([]);
+  const [Vehicle, setVehicle] = useState([]);
+  const [Citys, setCitys] = useState([]);
+  
+  const [originVisible, setOriginVisible] = useState(false);
+  const [destVisible, setDestVisible] = useState(false);
+
+  const [VehicleClass, setVehicleClass] = useState(null);
+
+  const [formData, setFormData] = useState({
+    t_vessel_schedule_id: DataSchedule.id,
+    order_name: '',
+    no_hp: '',
+    email: '',
+    police_number: '',
+    golongan: '',
+    golongan_id: '',
+    jadwal_check_in: DataSchedule.est_departure,
+  });
+
+  const handleInputChange = (key, value) => {
+    if (key == 'golongan_id') {
+      setFormData({
+        ...formData,
+        golongan_id: value.id,
+        golongan: value.name
+      });
+      console.log(value)
+    }else{
+      setFormData({ ...formData, [key]: value });
+    }
+   
+  };
 
   const handleAddPassenger = () => {
     if (!identity || !name || !age || !City)
@@ -47,44 +82,6 @@ const OrderHeader = ({navigation, route}) => {
     setPassengers(passengers.filter((p) => p.id !== id));
   };
 
-  const baseUrl = 'https://cigading.krakatauport.id:8020';
-
-  const [Datas, setDatas] = useState([]);
-  const [Vehicle, setVehicle] = useState([]);
-  const [Citys, setCitys] = useState([]);
-  
-    const [originVisible, setOriginVisible] = useState(false);
-    const [destVisible, setDestVisible] = useState(false);
-
-  const [VehicleClass, setVehicleClass] = useState(null);
-
-
-  const [formData, setFormData] = useState({
-    t_vessel_schedule_id: DataSchedule.id,
-    order_name: '',
-    no_hp: '',
-    email: '',
-    police_number: '',
-    golongan: '',
-    golongan_id: '',
-    jadwal_check_in: DataSchedule.est_departure,
-  });
-
-  const handleInputChange = (key, value) => {
-    if (key == 'golongan_id') {
-      setFormData({
-        ...formData,
-        golongan_id: value.id,
-        golongan: value.name
-      });
-      console.log(value)
-    }else{
-      setFormData({ ...formData, [key]: value });
-    }
-   
-  };
-
-  
   const handleSaveOrder = () => {
 
     const requiredFields = [
@@ -124,7 +121,7 @@ const OrderHeader = ({navigation, route}) => {
     console.log("s",finalData)
 
     try {
-      const response = await axios.post(`${baseUrl}/api/roro/booking`, finalData);
+      const response = await axios.post(API_URLS.BOOKING, finalData);
 
       console.log(response.data)
      if (response.data.code == 200) {
@@ -143,9 +140,9 @@ const OrderHeader = ({navigation, route}) => {
   useEffect(() => {
       const fetchPorts = async () => {
         try {
-          // const DataSchedule = await axios.get(`${baseUrl}/api/roro/schedule?size=100`);
-          const originRes = await axios.get(`${baseUrl}/api/roro/list_vehicle_class?size=100`);
-          const destRes = await axios.get(`${baseUrl}/api/roro/list_city?size=100`);
+          // const DataSchedule = await axios.get(API_URLS.LIST_SCHEDULE + '?size=100');
+          const originRes = await axios.get(API_URLS.LIST_VEHICLE_CLASS + '?size=100');
+          const destRes = await axios.get(API_URLS.LIST_CITY + '?size=100');
           // console.log(DataSchedule.data.data)
           // setDatas(DataSchedule.data.data);
           setVehicle(originRes.data.data);
@@ -166,7 +163,7 @@ const OrderHeader = ({navigation, route}) => {
       <View style={styles.headerContainer}>
         <View style={styles.leftContent}>
           <Image
-            source={{ uri: 'https://cigading.krakatauport.id:8021/_nuxt/img/kipos-4x-removebg-preview.948721e.png' }}
+            source={{ uri: IMAGE_URLS.LOGO }}
             style={styles.logo}
             resizeMode="contain"
             />
